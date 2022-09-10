@@ -1,0 +1,40 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    SHELL: "/bin/bash"
+
+phases:
+  install:
+    commands:
+      - echo "Installing AWS CLI v2"
+      - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      - unzip -q awscliv2.zip
+      - ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
+      - /usr/local/bin/aws --version
+
+  pre_build:
+    commands:
+      - echo "Asumiendo el Rol para ejecutar comandos en la cuenta de destino"
+      - eval $(/usr/local/bin/aws sts assume-role --role-arn arn:aws:iam::$AccountID:role/AWSCloudFormationStackSetExecutionRole --role-session-name test | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
+      - echo "Exportando Variables"
+      - echo SHELL=$SHELL
+      - FECHA=$(date +"%D")
+      - HORA=$(date +"%H:%M:%S")
+      - ALB=$(/usr/local/bin/aws cloudformation list-exports --query "Exports[?Name=='$EnvironmentName-AlbDNSName'].Value" --output text)
+      - Route53ID=$(/usr/local/bin/aws route53 list-hosted-zones-by-name | jq --arg name "corebancario-diners.com." -r '.HostedZones | .[] | select(.Name=="\($name)") | .Id' | awk -F "/" {'print $3'})
+
+  build:
+    commands:
+      - echo "Insertando VPCId en Hosted Zone de Route53"
+      - echo "Fecha:$FECHA --- Hora:$HORA"
+      - /usr/local/bin/aws route53 associate-vpc-with-hosted-zone --hosted-zone-id $Route53ID --vpc VPCRegion=$Region,VPCId=$VPCID
+
+  post_build:
+    commands:
+      - echo "Ejecutando pruebas PostInstall"
+      - sleep 10
+      - echo "Fecha:$FECHA --- Hora:$HORA"
+      - TEST=$(/usr/local/bin/aws lambda invoke --function-name $EnvironmentName-Exporter --payload '{ }' response.json | grep "FunctionError" | wc -l | tr -d ' ') && if [ "$TEST" -eq 1 ]; then exit 1; else echo "Lambda OK"; fi
+      - echo "Prueba satisfactoria"

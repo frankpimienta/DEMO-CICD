@@ -1,0 +1,118 @@
+[
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "kloudpepper-test"
+  }, 
+  {
+    "ParameterKey": "VpcCIDR",
+    "ParameterValue": "192.168.10.0/24"
+  },
+  {
+    "ParameterKey": "PublicSubnet1CIDR",
+    "ParameterValue": "192.168.10.128/27"
+  },
+  {
+    "ParameterKey": "PublicSubnet2CIDR",
+    "ParameterValue": "192.168.10.160/27"
+  },
+  {
+    "ParameterKey": "PrivateSubnet1CIDR",
+    "ParameterValue": "192.168.10.0/26"
+  },
+  {
+    "ParameterKey": "PrivateSubnet2CIDR",
+    "ParameterValue": "192.168.10.64/26"
+  },
+  {
+    "ParameterKey": "DBPrivateSubnet1CIDR",
+    "ParameterValue": "192.168.10.192/27"
+  },
+  {
+    "ParameterKey": "DBPrivateSubnet2CIDR",
+    "ParameterValue": "192.168.10.224/27"
+  },
+  {
+    "ParameterKey": "MQType",
+    "ParameterValue": "mq.m5.large"
+  },
+  {
+    "ParameterKey": "MQUser",
+    "ParameterValue": "tafj"
+  },
+  {
+    "ParameterKey": "MQPassword",
+    "ParameterValue": "qvkWq7*lC0uD"
+  },
+  {
+    "ParameterKey": "DBType",
+    "ParameterValue": "db.r5.large"
+  },
+  {
+    "ParameterKey": "DBUser",
+    "ParameterValue": "tafj"
+  },
+  {
+    "ParameterKey": "DBPassword",
+    "ParameterValue": "tafj"
+  },
+  {
+    "ParameterKey": "RDSSnapshotARN",
+    "ParameterValue": "arn:aws:rds:us-east-1:331022218908:snapshot:reference-db-18112021-snapshot"
+  },
+  {
+    "ParameterKey": "ACMCertificate",
+    "ParameterValue": "arn:aws:acm:us-east-1:104874417113:certificate/383d780f-bf1b-44d0-8614-5d4094c587d4"
+  },
+  {
+    "ParameterKey": "HostedZoneIdRoute53",
+    "ParameterValue": "Z06308982HGXMY2M9JXIR"
+  },
+  {
+    "ParameterKey": "DesiredCount",
+    "ParameterValue": "1"
+  },
+  {
+    "ParameterKey": "ImageUrlWeb",
+    "ParameterValue": "104874417113.dkr.ecr.us-east-1.amazonaws.com/reference-corebancario:web-R20.4.5.02.prod"
+  },
+  {
+    "ParameterKey": "ImageUrlApp",
+    "ParameterValue": "104874417113.dkr.ecr.us-east-1.amazonaws.com/reference-corebancario:app-R20.4.5.202111051018"
+  },
+  {
+    "ParameterKey": "ImageUrlDev",
+    "ParameterValue": "104874417113.dkr.ecr.us-east-1.amazonaws.com/reference-corebancario:dev-R20.5.02.prod"
+  },
+  {
+    "ParameterKey": "ImageUrlDevL3",
+    "ParameterValue": "104874417113.dkr.ecr.us-east-1.amazonaws.com/reference-corebancario:devL3-R20.5.02.prod"
+  },
+  {
+    "ParameterKey": "ImageUrlTCUA",
+    "ParameterValue": "104874417113.dkr.ecr.us-east-1.amazonaws.com/reference-corebancario:tcua-R20.4.5.02.prod"
+  },
+  {
+    "ParameterKey": "ImageUrlBFL",
+    "ParameterValue": "104874417113.dkr.ecr.us-east-1.amazonaws.com/reference-corebancario:bfl-R20.4.5.02.prod"
+  },
+  {
+    "ParameterKey": "ImageUrlBatch",
+    "ParameterValue": "104874417113.dkr.ecr.us-east-1.amazonaws.com/reference-corebancario:batch-R20.4.5.202111051018"
+  },
+  {
+    "ParameterKey": "EventRuleAction",
+    "ParameterValue": "ENABLED"
+  },
+  {
+    "ParameterKey": "Account",
+    "ParameterValue": "Prod-Core-Bancario"
+  },
+  {
+    "ParameterKey": "Working",
+    "ParameterValue": "24horas"
+  },
+  {
+    "ParameterKey": "Backup",
+    "ParameterValue": "PRODUCCION-RDS"
+  }
+]
