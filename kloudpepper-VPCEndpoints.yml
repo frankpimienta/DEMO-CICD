@@ -11,9 +11,6 @@ Parameters:
   PrivateSubnet2:
     Type: String
 
-  PrivateRouteTable:
-    Type: String
-
   VPCEnpointSecurityGroup:
     Type: String
 
@@ -32,32 +29,6 @@ Resources:
       VpcEndpointType: 'Interface'
       VpcId: !Ref VpcID
 
-  ECRApiEndpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      PrivateDnsEnabled: true
-      SecurityGroupIds: 
-        - !Ref VPCEnpointSecurityGroup
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.api"
-      SubnetIds: 
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
-      VpcEndpointType: 'Interface'
-      VpcId: !Ref VpcID
-
-  ECRDkrEndpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      PrivateDnsEnabled: true
-      SecurityGroupIds: 
-        - !Ref VPCEnpointSecurityGroup
-      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ecr.dkr"
-      SubnetIds: 
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
-      VpcEndpointType: 'Interface'
-      VpcId: !Ref VpcID
-
   LogsEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -65,6 +36,19 @@ Resources:
       SecurityGroupIds: 
         - !Ref VPCEnpointSecurityGroup
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.logs"
+      SubnetIds: 
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      VpcEndpointType: 'Interface'
+      VpcId: !Ref VpcID
+
+  SecretsEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds: 
+        - !Ref VPCEnpointSecurityGroup
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.secretsmanager"
       SubnetIds: 
         - !Ref PrivateSubnet1
         - !Ref PrivateSubnet2
