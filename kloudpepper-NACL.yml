@@ -2,9 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "CloudFormation template to create a network ACL"
 
 Parameters:
-  EnvironmentType:
-    Type: String
-
   EnvironmentName:
     Type: String
 
