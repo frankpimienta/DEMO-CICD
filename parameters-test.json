@@ -1,5 +1,9 @@
 [
   {
+    "ParameterKey": "EnvironmentType",
+    "ParameterValue": "nonprod"
+  },
+  {
     "ParameterKey": "EnvironmentName",
     "ParameterValue": "kloudpepper-test"
   }, 
@@ -38,9 +42,5 @@
   {
     "ParameterKey": "ImageUrlApp",
     "ParameterValue": "frankpimienta/demo-cicd:app"
-  },
-  {
-    "ParameterKey": "EventRuleAction",
-    "ParameterValue": "ENABLED"
   }
 ]
