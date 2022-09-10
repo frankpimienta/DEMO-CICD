@@ -8,9 +8,6 @@ Parameters:
   EnvironmentName:
     Type: String
 
-  PrivateDomainName:
-    Type: String
-
   PrivateSubnet1:
     Type: String
 
@@ -23,43 +20,25 @@ Parameters:
   DesiredCount:
     Type: String
 
-  ImageUrlApp1:
+  ImageUrlApp:
     Type: String
 
-  ImageUrlApp2:
+  RDSWriterEnpointAddr:
     Type: String
 
-  MQUser:
-    Type: String
-
-  MQPassword:
-    Type: String
-
-  MQEnpointAddr:
-    Type: String
-
-  DBUser:
-    Type: String
-
-  DBPassword:
+  RDSReaderEnpointAddr:
     Type: String
 
   RDSEnpointPort:
     Type: String
 
-  TargetGroupAPP1:
-    Type: String
-
-  TargetGroupAPP2:
+  TargetGroupAPP:
     Type: String
 
   FileSystemId:
     Type: String
 
-  AccessPointIdDataApp1:
-    Type: String
-
-  AccessPointIdDataApp2:
+  AccessPointIdDataApp:
     Type: String
 
 
@@ -68,16 +47,10 @@ Conditions:
 
 
 Resources:
-  LogGroupApp1:
+  LogGroupApp:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /ecs/${EnvironmentName}-App1
-      RetentionInDays: 365
-
-  LogGroupApp2:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub /ecs/${EnvironmentName}-App2
+      LogGroupName: !Sub /ecs/${EnvironmentName}-App
       RetentionInDays: 365
 
   ECSTaskRole:
@@ -95,73 +68,36 @@ Resources:
           Action: 
             - sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
-        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
       Path: /
 
-  ECSTaskExecutionRole:
-    Type: AWS::IAM::Role
-    DependsOn: ECSTaskRole
-    Properties:
-      RoleName: !Sub ${EnvironmentName}-ECSTaskExecutionRole
-      Description: Role access to other AWS resources
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-              - ecs-tasks.amazonaws.com
-          Action: 
-            - sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
-      Path: /
-
-  TaskDefinitionApp1:
+  TaskDefinitionApp:
     Type: AWS::ECS::TaskDefinition
     DependsOn:
-      - LogGroupApp1
-      - ECSTaskRole
-      - ECSTaskExecutionRole
+      - LogGroupApp
     Properties:
-      Family: !Sub ${EnvironmentName}-TD-App1
-      Cpu: !If [isProdEnvironmentType, 2048, 1024]
-      Memory: !If [isProdEnvironmentType, 16384, 8192]
+      Family: !Sub ${EnvironmentName}-TD-App
+      Cpu: !If [isProdEnvironmentType, 512, 256]
+      Memory: !If [isProdEnvironmentType, 1024, 512]
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-      ExecutionRoleArn: !Ref ECSTaskExecutionRole
       TaskRoleArn: !Ref ECSTaskRole
       ContainerDefinitions:
-        - Name: ContainerApp1
-          Cpu: !If [isProdEnvironmentType, 2048, 1024]
-          MemoryReservation: !If [isProdEnvironmentType, 16384, 8192]
-          Image: !Ref ImageUrlApp1
+        - Name: ContainerApp
+          Cpu: !If [isProdEnvironmentType, 512, 256]
+          MemoryReservation: !If [isProdEnvironmentType, 1024, 512]
+          Image: !Ref ImageUrlApp
           PortMappings:
             - ContainerPort: 8554
           MountPoints:
-            - SourceVolume: efs-app1
-              ContainerPath: /mnt/app1
+            - SourceVolume: efs-app
+              ContainerPath: /mnt/app
           Environment:
-            - Name: MQ_USER
-              Value: !Ref 'MQUser'
-            - Name: MQ_PASSWORD
-              Value: !Ref 'MQPassword'
-            - Name: MQ_URL
-              Value: !Ref 'MQEnpointAddr'
-            - Name: DB_USER
-              Value: !Ref 'DBUser'
-            - Name: DB_PASSWORD
-              Value: !Ref 'DBPassword'
-            - Name: DB_URL
-              Value: !Sub 'jdbc:mysql:aurora//db.${PrivateDomainName}:${RDSEnpointPort}/${EnvironmentName}DB'
-            - Name: S3EXPORT
-              Value: !Sub '${EnvironmentName}-data-export'
+            - Name: DB_URL_WRITE
+              Value: !Sub 'jdbc:mysql:aurora//${RDSWriterEnpointAddr}:${RDSEnpointPort}/${EnvironmentName}-DB'
+            - Name: DB_URL_READ
+              Value: !Sub 'jdbc:mysql:aurora//${RDSReaderEnpointAddr}:${RDSEnpointPort}/${EnvironmentName}-DB'
           StopTimeout: 30
           Ulimits:
             - Name: 'nofile'
@@ -170,80 +106,16 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Sub "/ecs/${EnvironmentName}-App1"
+              awslogs-group: !Sub "/ecs/${EnvironmentName}-App"
               awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: App1
+              awslogs-stream-prefix: App
       Volumes:
-        - Name: efs-app1
+        - Name: efs-app
           EFSVolumeConfiguration:
             FilesystemId: !Ref FileSystemId
             TransitEncryption: ENABLED
             AuthorizationConfig:
-              AccessPointId: !Ref AccessPointIdDataApp1
-              IAM: DISABLED
-      Tags:
-        - 
-          Key: Environment
-          Value: !Ref EnvironmentName
-
-  TaskDefinitionApp2:
-    Type: AWS::ECS::TaskDefinition
-    DependsOn:
-      - LogGroupApp2
-      - ECSTaskRole
-      - ECSTaskExecutionRole
-    Properties:
-      Family: !Sub ${EnvironmentName}-TD-App2
-      Cpu: !If [isProdEnvironmentType, 2048, 1024]
-      Memory: !If [isProdEnvironmentType, 16384, 8192]
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
-      ExecutionRoleArn: !Ref ECSTaskExecutionRole
-      TaskRoleArn: !Ref ECSTaskRole
-      ContainerDefinitions:
-        - Name: ContainerApp2
-          Cpu: !If [isProdEnvironmentType, 2048, 1024]
-          MemoryReservation: !If [isProdEnvironmentType, 16384, 8192]
-          Image: !Ref ImageUrlApp2
-          PortMappings:
-            - ContainerPort: 8554
-          MountPoints:
-            - SourceVolume: efs-app2
-              ContainerPath: /mnt/app2
-          Environment:
-            - Name: MQ_USER
-              Value: !Ref 'MQUser'
-            - Name: MQ_PASSWORD
-              Value: !Ref 'MQPassword'
-            - Name: MQ_URL
-              Value: !Ref 'MQEnpointAddr'
-            - Name: DB_USER
-              Value: !Ref 'DBUser'
-            - Name: DB_PASSWORD
-              Value: !Ref 'DBPassword'
-            - Name: DB_URL
-              Value: !Sub 'jdbc:mysql:aurora//db.${PrivateDomainName}:${RDSEnpointPort}/${EnvironmentName}DB'
-            - Name: S3EXPORT
-              Value: !Sub '${EnvironmentName}-data-export'
-          StopTimeout: 30
-          Ulimits:
-            - Name: 'nofile'
-              SoftLimit: 65536
-              HardLimit: 65536
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Sub "/ecs/${EnvironmentName}-App2"
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: App2
-      Volumes:
-        - Name: efs-app2
-          EFSVolumeConfiguration:
-            FilesystemId: !Ref FileSystemId
-            TransitEncryption: ENABLED
-            AuthorizationConfig:
-              AccessPointId: !Ref AccessPointIdDataApp2
+              AccessPointId: !Ref AccessPointIdDataApp
               IAM: DISABLED
       Tags:
         - 
@@ -253,7 +125,7 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub ${EnvironmentName}-ECS-cluster
+      ClusterName: !Sub ${EnvironmentName}-ECS-Cluster
       ClusterSettings: 
         - 
           Name: containerInsights
@@ -267,15 +139,12 @@ Resources:
           Value: !Ref EnvironmentName
         - 
           Key: Name
-          Value: !Sub ${EnvironmentName}-ECS-cluster
+          Value: !Sub ${EnvironmentName}-ECS-Cluster
 
-  ServiceApp1:
+  ServiceApp:
     Type: AWS::ECS::Service
-    DependsOn:
-      - TaskDefinitionApp1
-      - ECSCluster
     Properties:
-      ServiceName: !Sub "${EnvironmentName}-APP1"
+      ServiceName: !Sub "${EnvironmentName}-APP"
       Cluster: !Ref ECSCluster
       LaunchType: FARGATE
       DeploymentConfiguration:
@@ -290,53 +159,17 @@ Resources:
           Subnets:
             - !Ref PrivateSubnet1
             - !Ref PrivateSubnet2
-      TaskDefinition: !Ref TaskDefinitionApp1
+      TaskDefinition: !Ref TaskDefinitionApp
       EnableExecuteCommand: 'true'
       HealthCheckGracePeriodSeconds: 60
       LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroupAPP1
+        - TargetGroupArn: !Ref TargetGroupAPP
           ContainerPort: 8554
-          ContainerName: ContainerApp1
+          ContainerName: ContainerApp
       Tags:
         - 
           Key: Environment
           Value: !Ref EnvironmentName
         - 
           Key: Name
-          Value: !Sub ${EnvironmentName}-APP1
-
-  ServiceApp2:
-    Type: AWS::ECS::Service
-    DependsOn:
-      - TaskDefinitionApp2
-      - ECSCluster
-    Properties:
-      ServiceName: !Sub "${EnvironmentName}-APP2"
-      Cluster: !Ref ECSCluster
-      LaunchType: FARGATE
-      DeploymentConfiguration:
-        MaximumPercent: 200
-        MinimumHealthyPercent: 100
-      DesiredCount: !Ref DesiredCount
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
-          SecurityGroups:
-            - !Ref ECSSecurityGroup
-          Subnets:
-            - !Ref PrivateSubnet1
-            - !Ref PrivateSubnet2
-      TaskDefinition: !Ref TaskDefinitionApp2
-      EnableExecuteCommand: 'true'
-      HealthCheckGracePeriodSeconds: 60
-      LoadBalancers:
-        - TargetGroupArn: !Ref TargetGroupAPP2
-          ContainerPort: 8554
-          ContainerName: ContainerApp2
-      Tags:
-        - 
-          Key: Environment
-          Value: !Ref EnvironmentName
-        - 
-          Key: Name
-          Value: !Sub ${EnvironmentName}-APP2
+          Value: !Sub ${EnvironmentName}-APP

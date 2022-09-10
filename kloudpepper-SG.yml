@@ -20,9 +20,9 @@ Resources:
       GroupName: !Sub ${EnvironmentName}-ALB-SG
       SecurityGroupIngress:
       - CidrIp: 0.0.0.0/0
-        FromPort: 443
+        FromPort: 80
         IpProtocol: tcp
-        ToPort: 443
+        ToPort: 80
         Description: Public Network
       VpcId: !Ref VpcID
       Tags:

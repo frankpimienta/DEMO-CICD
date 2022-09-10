@@ -44,8 +44,6 @@ Resources:
 
   EFSmounttarget1:
     Type: AWS::EFS::MountTarget
-    DependsOn:
-      - EFS
     Properties:
       FileSystemId: !Ref EFS
       SubnetId: !Ref PrivateSubnet1
@@ -54,15 +52,13 @@ Resources:
   
   EFSmounttarget2:
     Type: AWS::EFS::MountTarget
-    DependsOn:
-      - EFS
     Properties:
       FileSystemId: !Ref EFS
       SubnetId: !Ref PrivateSubnet2
       SecurityGroups: 
         - !Ref EFSSecurityGroup
 
-  FSDataApp1Accesspoint:
+  FSDataAppAccesspoint:
     Type: AWS::EFS::AccessPoint
     DependsOn:
       - EFSmounttarget1
@@ -71,40 +67,20 @@ Resources:
       FileSystemId: !Ref EFS
       AccessPointTags:
         - Key: Name
-          Value: data-app1
+          Value: data-app
       RootDirectory:
-        Path: /data/app1
+        Path: /data/app
         CreationInfo:
           OwnerGid: '1414'
           OwnerUid: '1414'
           Permissions: '0644'
-  
-  FSDataApp2Accesspoint:
-    Type: AWS::EFS::AccessPoint
-    DependsOn:
-      - EFSmounttarget1
-      - EFSmounttarget2
-    Properties:
-      FileSystemId: !Ref EFS
-      AccessPointTags:
-        - Key: Name
-          Value: data-app2
-      RootDirectory:
-        Path: /data/app2
-        CreationInfo:
-          OwnerGid: '1414'
-          OwnerUid: '1414'
-          Permissions: '0644'
+
 
 Outputs:
   FileSystemId:
     Description: Export FileSystemId
     Value: !GetAtt 'EFS.FileSystemId'
 
-  AccessPointIdDataApp1:
-    Description: Export AccessPointId app1
-    Value: !GetAtt 'FSDataApp1Accesspoint.AccessPointId'
-
-  AccessPointIdDataApp2:
-    Description: Export AccessPointId app2
-    Value: !GetAtt 'FSDataApp2Accesspoint.AccessPointId'
+  AccessPointIdDataApp:
+    Description: Export AccessPointId app
+    Value: !GetAtt 'FSDataAppAccesspoint.AccessPointId'
