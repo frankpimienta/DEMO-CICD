@@ -110,11 +110,16 @@ Resources:
       Port: 80
       Protocol: "HTTP"
       DefaultActions:
-        - Type: fixed-response
-          FixedResponseConfig:
-            ContentType: "text/plain"
-            MessageBody: "Wrong path"
-            StatusCode: "503"
+        - 
+          Order: 1
+          RedirectConfig: 
+              Protocol: "HTTP"
+              Port: "80"
+              Host: "#{host}"
+              Path: "/demo"
+              Query: "#{query}"
+              StatusCode: "HTTP_301"
+          Type: "redirect"
 
 # Create forwarding rules
   ListenerRule1:
@@ -125,7 +130,7 @@ Resources:
           ForwardConfig:
             TargetGroups:
               - TargetGroupArn: !Ref TargetGroupAPP
-                Weight: 1 # 100%
+                Weight: 1
             TargetGroupStickinessConfig: 
               Enabled: false
       Conditions:
