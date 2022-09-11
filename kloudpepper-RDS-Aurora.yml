@@ -102,9 +102,6 @@ Resources:
           Key: Name
           Value: !Sub ${EnvironmentName}-DB-cluster
 
-# Amazon RDS automatically assigns a writer and reader DB instances in the cluster.
-# Use the cluster endpoint to read and write data, not the individual DB instance endpoints.
-
   DBInstance1:
     Type: AWS::RDS::DBInstance
     Properties:
