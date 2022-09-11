@@ -95,9 +95,9 @@ Resources:
               ContainerPath: /mnt/app
           Environment:
             - Name: DB_URL_WRITE
-              Value: !Sub 'jdbc:mysql:aurora//${RDSWriterEnpointAddr}:${RDSEnpointPort}/${EnvironmentName}-DB'
+              Value: !Sub 'jdbc:mysql:aurora//${RDSWriterEnpointAddr}:${RDSEnpointPort}/AURORADB'
             - Name: DB_URL_READ
-              Value: !Sub 'jdbc:mysql:aurora//${RDSReaderEnpointAddr}:${RDSEnpointPort}/${EnvironmentName}-DB'
+              Value: !Sub 'jdbc:mysql:aurora//${RDSReaderEnpointAddr}:${RDSEnpointPort}/AURORADB'
           StopTimeout: 30
           Ulimits:
             - Name: 'nofile'

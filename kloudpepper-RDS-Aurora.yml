@@ -71,7 +71,7 @@ Resources:
     #UpdateReplacePolicy: Snapshot
     Properties:
       DBClusterIdentifier: !Sub "${EnvironmentName}-DB-Cluster"
-      DatabaseName: !Sub "${EnvironmentName}-DB"
+      DatabaseName: "AURORADB"
       DBClusterParameterGroupName: !Ref DBClusterParameterGroup
       StorageEncrypted: !If [isProdEnvironmentType, true, false]
       VpcSecurityGroupIds:
