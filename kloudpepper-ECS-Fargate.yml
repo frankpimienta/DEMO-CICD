@@ -71,6 +71,26 @@ Resources:
         - arn:aws:iam::aws:policy/CloudWatchFullAccess
       Path: /
 
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    DependsOn: ECSTaskRole
+    Properties:
+      RoleName: !Sub ${EnvironmentName}-ECSTaskExecutionRole
+      Description: Role access to other AWS resources
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - ecs-tasks.amazonaws.com
+          Action: 
+            - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+      Path: /
+
   TaskDefinitionApp:
     Type: AWS::ECS::TaskDefinition
     DependsOn:
@@ -82,6 +102,7 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
       TaskRoleArn: !Ref ECSTaskRole
       ContainerDefinitions:
         - Name: ContainerApp
