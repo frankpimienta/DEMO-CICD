@@ -29,4 +29,4 @@ phases:
     commands:
       - echo "Post Install Test"
       - echo "Date:$DATE --- Time:$TIME"
-      - TEST=$(curl -I http://$ALB/demo | grep -i "HTTP/1.1 200 OK" | wc -l) && if [ "$TEST" -eq 1 ]; then exit 1; else echo "Web Site OK"; fi
+      - TEST=$(curl -I http://$ALB/demo | grep -i "HTTP/1.1 200 OK" | wc -l) && if [ "$TEST" -eq 0 ]; then exit 1; else echo "Web Site OK"; fi
