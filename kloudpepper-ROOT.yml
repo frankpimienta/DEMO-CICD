@@ -195,8 +195,6 @@ Resources:
         VpcID: !GetAtt VPCStack.Outputs.VPC
         PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
         PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
-        PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1
-        PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2
         ALBSecurityGroup: !GetAtt SGStack.Outputs.ALBSecurityGroup
 
   RDSStack:
